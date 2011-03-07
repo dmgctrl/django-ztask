@@ -24,7 +24,7 @@ class Command(BaseCommand):
 
     def _handle(self):
         context = zmq.Context()
-        socket = context.socket(zmq.PULL)
+        socket = context.socket(zmq.UPSTREAM)
         socket.setsockopt(zmq.HWM, 64)
         socket.bind(settings.ZTASKD_URL)
 

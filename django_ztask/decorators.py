@@ -8,7 +8,7 @@ def task():
     def wrapper(func):
         function_name = '%s.%s' % (func.__module__, func.__name__)
         context = zmq.Context()
-        socket = context.socket(zmq.PUSH)
+        socket = context.socket(zmq.DOWNSTREAM)
         socket.connect(settings.ZTASKD_URL)
         @wraps(func)
         def _func(*args, **kwargs):

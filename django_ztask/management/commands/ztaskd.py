@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.utils import autoreload
 #
-from ztask.conf import settings
+from django_ztask.conf import settings
 #
 from optparse import make_option
 import sys

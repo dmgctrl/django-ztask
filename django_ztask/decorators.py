@@ -1,12 +1,17 @@
 from django.utils.decorators import available_attrs
 from functools import wraps
 
+import logging
 
 def task():
     from django_ztask.conf import settings
     import zmq
     def wrapper(func):
         function_name = '%s.%s' % (func.__module__, func.__name__)
+        
+        logger = logging.getLogger('ztaskd')
+        logger.info('Registered task: %s' % function_name)
+        
         context = zmq.Context()
         socket = context.socket(zmq.DOWNSTREAM)
         socket.connect(settings.ZTASKD_URL)
@@ -19,5 +24,5 @@ def task():
         setattr(func, 'async', _func)
         setattr(func, 'delay', _func)
         return func
-    return wrapper
     
+    return wrapper

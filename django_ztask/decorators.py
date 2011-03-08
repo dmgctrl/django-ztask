@@ -16,6 +16,7 @@ def task():
                 socket.send_pyobj((function_name, args, kwargs))
             except Exception, e:
                 func(*args, **kwargs)
+        setattr(func, 'async', _func)
         setattr(func, 'delay', _func)
         return func
     return wrapper

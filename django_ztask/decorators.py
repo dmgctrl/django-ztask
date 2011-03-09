@@ -22,8 +22,10 @@ def task():
             except Exception, e:
                 func(*args, **kwargs)
         def _func_delay(*args, **kwargs):
-            logger = logging.getLogger('ztaskd')
-            logger.warning('.delay is depricated. Use .async instead.')
+            try:
+                socket.send_pyobj(('ztask_log', ('.delay is depricated... use.async instead', function_name), None))
+            except:
+                pass
             _func(*args, **kwargs)
         setattr(func, 'async', _func)
         setattr(func, 'delay', _func_delay)

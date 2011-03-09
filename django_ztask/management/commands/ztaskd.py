@@ -39,6 +39,9 @@ class Command(BaseCommand):
             function_name = None
             try:
                 (function_name, args, kwargs) = socket.recv_pyobj()
+                if function_name == 'ztask_log':
+                    self.logger.warn('%s: %s' % (args[0], args[1]))
+                    continue
                 self.logger.info('Calling %s' % function_name)
                 try:
                     function = cache[function_name]

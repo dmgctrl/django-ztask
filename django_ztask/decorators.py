@@ -12,8 +12,8 @@ def task():
         logger = logging.getLogger('ztaskd')
         logger.info('Registered task: %s' % function_name)
         
-        context = zmq.Context()
-        socket = context.socket(zmq.DOWNSTREAM)
+        from django_ztask import context
+        socket = context.socket(zmq.PUSH)
         socket.connect(settings.ZTASKD_URL)
         @wraps(func)
         def _func(*args, **kwargs):

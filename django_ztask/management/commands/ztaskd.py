@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import autoreload
 #
 from django_ztask.conf import settings
+from django_ztask import context
 #
 from optparse import make_option
 import sys
@@ -20,20 +21,18 @@ class Command(BaseCommand):
     help = 'Start the ztaskd server'
     
     def handle(self, *args, **options):
-        self._setup_logger(options.get('logfile', None), options.get('loglevel', 'info'))
-        use_reloader = options.get('use_reloader', True)
-        if use_reloader:
-            autoreload.main(self._handle)
-        else:
-            self._handle()
-    
-    def _handle(self):
-        context = zmq.Context()
-        socket = context.socket(zmq.UPSTREAM)
-        socket.setsockopt(zmq.HWM, 64)
+        socket = context.socket(zmq.PULL)
         socket.bind(settings.ZTASKD_URL)
-        
-        self.logger.info("ztaskd development server started on %s." % (settings.ZTASKD_URL))
+
+        use_reloader = options.get('use_reloader', True)
+        self._setup_logger(options.get('logfile', None), options.get('loglevel', 'info'))
+        self.logger.info("%sServer started on %s." % ('Development ' if use_reloader else '', settings.ZTASKD_URL))
+        if use_reloader:
+            autoreload.main(lambda: self._handle(socket))
+        else:
+            self._handle(socket)
+    
+    def _handle(self, socket):
         cache = {}
         while True:
             function_name = None
@@ -54,7 +53,6 @@ class Command(BaseCommand):
                     function = getattr(sys.modules[module_name], member_name)
                     cache[function_name] = function
                 function(*args, **kwargs)
-                self.logger.info('Successfully called %s' % function_name)
             except Exception, e:
                 self.logger.error('Error calling %s. Details:\n%s' % (function_name, e))
                 traceback.print_exc(e)

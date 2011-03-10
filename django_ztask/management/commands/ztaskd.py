@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import autoreload
 #
 from django_ztask.conf import settings
-from django_ztask import context
+from django_ztask.context import shared_context as context
 #
 from optparse import make_option
 import sys

@@ -12,7 +12,7 @@ def task():
         logger = logging.getLogger('ztaskd')
         logger.info('Registered task: %s' % function_name)
         
-        from django_ztask import context
+        from django_ztask.context import shared_context as context
         socket = context.socket(zmq.PUSH)
         socket.connect(settings.ZTASKD_URL)
         @wraps(func)

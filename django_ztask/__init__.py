@@ -9,6 +9,3 @@ __contact__ = "jason@dmgctrl.com"
 __homepage__ = "http://github.com/dmgctrl/django-ztask"
 __docformat__ = "restructuredtext"
 __license__ = "BSD (3 clause)"
-
-import zmq
-context = zmq.Context()

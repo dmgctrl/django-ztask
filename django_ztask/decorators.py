@@ -17,13 +17,21 @@ def task():
         socket.connect(settings.ZTASKD_URL)
         @wraps(func)
         def _func(*args, **kwargs):
-            if settings.ZTASKD_ALWAYS_EAGER:
+            if settings.ZTASKD_DISABLED:
+                try:
+                    socket.send_pyobj(('ztask_log', ('Would have called but ZTASKD_DISABLED is True', function_name), None))
+                except:
+                    logger.info('Would have sent %s but ZTASKD_DISABLED is True' % function_name)
+                return
+            elif settings.ZTASKD_ALWAYS_EAGER:
+                logger.info('Running %s in ZTASKD_ALWAYS_EAGER mode' % function_name)
+                func(*args, **kwargs)
+            else:
                 try:
                     socket.send_pyobj((function_name, args, kwargs))
                 except Exception, e:
                     func(*args, **kwargs)
-            else:
-                func(*args, **kwargs)
+
         def _func_delay(*args, **kwargs):
             try:
                 socket.send_pyobj(('ztask_log', ('.delay is depricated... use.async instead', function_name), None))

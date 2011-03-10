@@ -21,18 +21,19 @@ class Command(BaseCommand):
     help = 'Start the ztaskd server'
     
     def handle(self, *args, **options):
+        self._setup_logger(options.get('logfile', None), options.get('loglevel', 'info'))
+        use_reloader = options.get('use_reloader', True)
+        if use_reloader:
+            autoreload.main(lambda: self._handle(use_reloader))
+        else:
+            self._handle(use_reloader)
+    
+    def _handle(self, use_reloader):
+        self.logger.info("%sServer starting on %s." % ('Development ' if use_reloader else '', settings.ZTASKD_URL))
+
         socket = context.socket(zmq.PULL)
         socket.bind(settings.ZTASKD_URL)
 
-        use_reloader = options.get('use_reloader', True)
-        self._setup_logger(options.get('logfile', None), options.get('loglevel', 'info'))
-        self.logger.info("%sServer started on %s." % ('Development ' if use_reloader else '', settings.ZTASKD_URL))
-        if use_reloader:
-            autoreload.main(lambda: self._handle(socket))
-        else:
-            self._handle(socket)
-    
-    def _handle(self, socket):
         cache = {}
         while True:
             function_name = None

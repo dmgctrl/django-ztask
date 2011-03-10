@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import autoreload
 #
 from django_ztask.conf import settings
+from django_ztask.context import shared_context as context
 #
 from optparse import make_option
 import sys
@@ -23,17 +24,16 @@ class Command(BaseCommand):
         self._setup_logger(options.get('logfile', None), options.get('loglevel', 'info'))
         use_reloader = options.get('use_reloader', True)
         if use_reloader:
-            autoreload.main(self._handle)
+            autoreload.main(lambda: self._handle(use_reloader))
         else:
-            self._handle()
+            self._handle(use_reloader)
     
-    def _handle(self):
-        context = zmq.Context()
-        socket = context.socket(zmq.UPSTREAM)
-        socket.setsockopt(zmq.HWM, 64)
+    def _handle(self, use_reloader):
+        self.logger.info("%sServer starting on %s." % ('Development ' if use_reloader else '', settings.ZTASKD_URL))
+
+        socket = context.socket(zmq.PULL)
         socket.bind(settings.ZTASKD_URL)
-        
-        self.logger.info("ztaskd development server started on %s." % (settings.ZTASKD_URL))
+
         cache = {}
         while True:
             function_name = None
@@ -54,7 +54,6 @@ class Command(BaseCommand):
                     function = getattr(sys.modules[module_name], member_name)
                     cache[function_name] = function
                 function(*args, **kwargs)
-                self.logger.info('Successfully called %s' % function_name)
             except Exception, e:
                 self.logger.error('Error calling %s. Details:\n%s' % (function_name, e))
                 traceback.print_exc(e)

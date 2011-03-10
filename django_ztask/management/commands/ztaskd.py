@@ -6,7 +6,6 @@ from django_ztask.context import shared_context as context
 #
 from optparse import make_option
 import sys
-import zmq
 import traceback
 
 import logging
@@ -31,7 +30,11 @@ class Command(BaseCommand):
     def _handle(self, use_reloader):
         self.logger.info("%sServer starting on %s." % ('Development ' if use_reloader else '', settings.ZTASKD_URL))
 
-        socket = context.socket(zmq.PULL)
+        try:
+            from zmq import PULL
+        except:
+            from zmq import DOWNSTREAM as PULL
+        socket = context.socket(PULL)
         socket.bind(settings.ZTASKD_URL)
 
         cache = {}
@@ -54,6 +57,7 @@ class Command(BaseCommand):
                     function = getattr(sys.modules[module_name], member_name)
                     cache[function_name] = function
                 function(*args, **kwargs)
+                self.logger.info('Called %s successfully' % function_name)
             except Exception, e:
                 self.logger.error('Error calling %s. Details:\n%s' % (function_name, e))
                 traceback.print_exc(e)

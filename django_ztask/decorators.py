@@ -5,7 +5,10 @@ import logging
 
 def task():
     from django_ztask.conf import settings
-    import zmq
+    try:
+        from zmq import PUSH
+    except:
+        from zmq import UPSTREAM as PUSH
     def wrapper(func):
         function_name = '%s.%s' % (func.__module__, func.__name__)
         
@@ -13,7 +16,7 @@ def task():
         logger.info('Registered task: %s' % function_name)
         
         from django_ztask.context import shared_context as context
-        socket = context.socket(zmq.PUSH)
+        socket = context.socket(PUSH)
         socket.connect(settings.ZTASKD_URL)
         @wraps(func)
         def _func(*args, **kwargs):

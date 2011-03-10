@@ -17,9 +17,12 @@ def task():
         socket.connect(settings.ZTASKD_URL)
         @wraps(func)
         def _func(*args, **kwargs):
-            try:
-                socket.send_pyobj((function_name, args, kwargs))
-            except Exception, e:
+            if settings.ZTASKD_ALWAYS_EAGER:
+                try:
+                    socket.send_pyobj((function_name, args, kwargs))
+                except Exception, e:
+                    func(*args, **kwargs)
+            else:
                 func(*args, **kwargs)
         def _func_delay(*args, **kwargs):
             try:

@@ -33,7 +33,7 @@ class Command(BaseCommand):
         try:
             from zmq import PULL
         except:
-            from zmq import DOWNSTREAM as PULL
+            from zmq import UPSTREAM as PULL
         socket = context.socket(PULL)
         socket.bind(settings.ZTASKD_URL)
 

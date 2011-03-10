@@ -8,7 +8,7 @@ def task():
     try:
         from zmq import PUSH
     except:
-        from zmq import UPSTREAM as PUSH
+        from zmq import DOWNSTREAM as PUSH
     def wrapper(func):
         function_name = '%s.%s' % (func.__module__, func.__name__)
         

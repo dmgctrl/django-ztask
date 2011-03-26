@@ -31,6 +31,7 @@ class Command(BaseCommand):
     args = ''
     help = 'Start the ztaskd server'
     func_cache = {}
+    io_loop = None
     
     def handle(self, *args, **options):
         self._setup_logger(options.get('logfile', None), options.get('loglevel', 'info'))
@@ -47,8 +48,6 @@ class Command(BaseCommand):
         socket = context.socket(PULL)
         socket.bind(settings.ZTASKD_URL)
         
-        io_loop = ioloop.IOLoop.instance()
-        
         def _queue_handler(socket, *args, **kwargs):
             try:
                 (function_name, args, kwargs, after) = socket.recv_pyobj()
@@ -64,7 +63,7 @@ class Command(BaseCommand):
                 )
                 
                 if after:
-                    ioloop.DelayedCallback(lambda: self._call_function(task.pk, function_name=function_name, args=args, kwargs=kwargs), after * 1000, io_loop=io_loop).start()
+                    ioloop.DelayedCallback(lambda: self._call_function(task.pk, function_name=function_name, args=args, kwargs=kwargs), after * 1000, io_loop=self.io_loop).start()
                 else:
                     self._call_function(task.pk, function_name=function_name, args=args, kwargs=kwargs)
             except Exception, e:
@@ -78,13 +77,14 @@ class Command(BaseCommand):
             replay_tasks = Task.objects.filter(failed__isnull=True)
         for task in replay_tasks:
             if task.next_attempt < time.time():
-                ioloop.DelayedCallback(lambda: self._call_function(task.pk), 5000, io_loop=io_loop).start()
+                ioloop.DelayedCallback(lambda: self._call_function(task.pk), 5000, io_loop=self.io_loop).start()
             else:
                 after = task.next_attempt - time.time()
-                ioloop.DelayedCallback(lambda: self._call_function(task.pk), after * 1000, io_loop=io_loop).start()
+                ioloop.DelayedCallback(lambda: self._call_function(task.pk), after * 1000, io_loop=self.io_loop).start()
         
-        io_loop.add_handler(socket, _queue_handler, io_loop.READ)
-        io_loop.start()
+        self.io_loop = ioloop.IOLoop.instance()
+        self.io_loop.add_handler(socket, _queue_handler, self.io_loop.READ)
+        self.io_loop.start()
     
     def p(self, txt):
         print txt
@@ -102,7 +102,7 @@ class Command(BaseCommand):
                     return
                 
             self.logger.info('Calling %s' % function_name)
-            self.logger.info('Task ID: %s' % task_id)
+            #self.logger.info('Task ID: %s' % task_id)
             try:
                 function = self.func_cache[function_name]
             except KeyError:
@@ -121,9 +121,8 @@ class Command(BaseCommand):
             task = Task.objects.get(pk=task_id)
             if task.retry_count > 0:
                 task.retry_count = task.retry_count - 1
-                task.next_attempt = datetime.datetime.now() + datetime.timedelta(seconds=settings.ZTASKD_RETRY_AFTER)
-                # TODO: SETUP RETRY ON HEAP
-                
+                task.next_attempt = time.time() + settings.ZTASKD_RETRY_AFTER
+                ioloop.DelayedCallback(lambda: self._call_function(task.pk), settings.ZTASKD_RETRY_AFTER * 1000, io_loop=self.io_loop).start()
             task.failed = datetime.datetime.now()
             task.last_exception = '%s' % e
             task.save()

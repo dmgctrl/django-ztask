@@ -118,14 +118,17 @@ class Command(BaseCommand):
             Task.objects.get(pk=task_id).delete()
         except Exception, e:
             self.logger.error('Error calling %s. Details:\n%s' % (function_name, e))
-            task = Task.objects.get(pk=task_id)
-            if task.retry_count > 0:
-                task.retry_count = task.retry_count - 1
-                task.next_attempt = time.time() + settings.ZTASKD_RETRY_AFTER
-                ioloop.DelayedCallback(lambda: self._call_function(task.pk), settings.ZTASKD_RETRY_AFTER * 1000, io_loop=self.io_loop).start()
-            task.failed = datetime.datetime.now()
-            task.last_exception = '%s' % e
-            task.save()
+            try:
+                task = Task.objects.get(pk=task_id)
+                if task.retry_count > 0:
+                    task.retry_count = task.retry_count - 1
+                    task.next_attempt = time.time() + settings.ZTASKD_RETRY_AFTER
+                    ioloop.DelayedCallback(lambda: self._call_function(task.pk), settings.ZTASKD_RETRY_AFTER * 1000, io_loop=self.io_loop).start()
+                task.failed = datetime.datetime.now()
+                task.last_exception = '%s' % e
+                task.save()
+            except Exception, e2:
+                self.logger.error('Error capturing exception in _call_function. Details:\n%s' % e2)
             traceback.print_exc(e)
     
     def _setup_logger(self, logfile, loglevel):

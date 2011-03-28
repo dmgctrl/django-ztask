@@ -24,7 +24,7 @@ def task():
             after = kwargs.pop('__ztask_after', 0)
             if settings.ZTASKD_DISABLED:
                 try:
-                    socket.send_pyobj(('ztask_log', ('Would have called but ZTASKD_DISABLED is True', function_name), None))
+                    socket.send_pyobj(('ztask_log', ('Would have called but ZTASKD_DISABLED is True', function_name), None, 0))
                 except:
                     logger.info('Would have sent %s but ZTASKD_DISABLED is True' % function_name)
                 return
@@ -43,7 +43,7 @@ def task():
 
         def _func_delay(*args, **kwargs):
             try:
-                socket.send_pyobj(('ztask_log', ('.delay is depricated... use.async instead', function_name), None))
+                socket.send_pyobj(('ztask_log', ('.delay is depricated... use.async instead', function_name), None, 0))
             except:
                 pass
             _func(*args, **kwargs)

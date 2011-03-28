@@ -50,7 +50,7 @@ class Command(BaseCommand):
         
         def _queue_handler(socket, *args, **kwargs):
             try:
-                (function_name, args, kwargs, after) = socket.recv_pyobj()
+                function_name, args, kwargs, after = socket.recv_pyobj()
                 if function_name == 'ztask_log':
                     self.logger.warn('%s: %s' % (args[0], args[1]))
                     return

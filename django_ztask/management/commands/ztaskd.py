@@ -74,7 +74,7 @@ class Command(BaseCommand):
         if replay_failed:
             replay_tasks = Task.objects.all()
         else:
-            replay_tasks = Task.objects.filter(failed__isnull=True)
+            replay_tasks = Task.objects.filter(retry_count__gt=0)
         for task in replay_tasks:
             if task.next_attempt < time.time():
                 ioloop.DelayedCallback(lambda: self._call_function(task.pk), 5000, io_loop=self.io_loop).start()

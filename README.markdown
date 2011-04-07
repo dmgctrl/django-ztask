@@ -128,16 +128,16 @@ Function extensions
 
 Any function can be called in one of three ways:
 
-- `func(args, *kwargs)`
+- `func(*args, *kwargs)`
 
   Calling a function normally will bypass the decorator and call the function directly
 
-- `func.async(args, **kwargs)`
+- `func.async(*args, **kwargs)`
 
   Calling a function with `.async` will cause the function task to be called asyncronously 
   on the ztaskd server. For backwards compatability, `.delay` will do the same thing as `.async`, but is deprecated.
 
-- `func.after(seconds, args, **kwargs)`
+- `func.after(seconds, *args, **kwargs)`
 
   This will cause the task to be sent to the `ztaskd` server, which will wait `seconds` 
   seconds to execute.

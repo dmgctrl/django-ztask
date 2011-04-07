@@ -1,14 +1,21 @@
 Installing
 ==========
 
-Download and install 0MQ version 2.1.3 or better from http://www.zeromq.org
+Download and install 0MQ version 2.1.3 or better from [http://www.zeromq.org](http://www.zeromq.org)
 
 Install pyzmq and django_ztaskd using PIP:
 
     pip install pyzmq
     pip install -e git@github.com:dmgctrl/django-ztask.git#egg=django_ztask
 
-Add `django_ztask` to your `INSTALLED_APPS` setting in `settings.py`, and run `syncdb`
+Add `django_ztask` to your `INSTALLED_APPS` setting in `settings.py`
+
+    INSTALLED_APPS = (
+        ...,
+        'django_ztask',
+    )
+
+Then run `syncdb`
 
     python manage.py syncdb
     
@@ -102,6 +109,14 @@ Decorators and function extensions make tasks able to run.
 Unlike some solutions, tasks can be in any file anywhere. 
 When the file is imported, `ztaskd` will register the task for running.
 
+**Important note: all functions and their arguments must be able to be pickled.**
+
+([Read more about pickling here](http://docs.python.org/tutorial/inputoutput.html#the-pickle-module))
+
+It is a recommended best practice that instead of passing a Django model object 
+to a task, you intead pass along the model's ID or primary key, and re-get 
+the object in the task function.
+
 The @task Decorator
 -------------------
 
@@ -153,4 +168,4 @@ Example
 
 TODOs and BUGS
 ==============
-See: http://github.com/dmgctrl/django-ztask/issues
+See: [http://github.com/dmgctrl/django-ztask/issues](http://github.com/dmgctrl/django-ztask/issues)

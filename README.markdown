@@ -31,11 +31,11 @@ Run django-ztask using the manage.py command:
 Command-line arguments
 ----------------------
 
-The ztaskd command takes a series of command-line arguments:
+The `ztaskd` command takes a series of command-line arguments:
 
 - `--noreload`
 
-  By default, `ztaskd` will use the built-in django reloader 
+  By default, `ztaskd` will use the built-in Django reloader 
   to reload the server whenever a change is made to a python file. Passing
   in `--noreload` will prevent it from listening for changed files.
   (Good to use in production.)
@@ -67,7 +67,7 @@ your Django project. These are the settings and their defaults
 
     ZTASKD_URL = 'tcp://127.0.0.1:5555'
 
-By default, ztaskd will run over TCP, listening on 127.0.0.1 port 5555. 
+By default, `ztaskd` will run over TCP, listening on 127.0.0.1 port 5555. 
 
     ZTASKD_ALWAYS_EAGER = False
 
@@ -88,12 +88,18 @@ The number of times a task should be reattempted before it is considered failed.
 
 The number, in seconds, to wait in-between task retries. 
 
+    ZTASKD_ON_LOAD = ()
+    
+This is a list of callables - either classes or functions - that are called when the server first
+starts. This is implemented to support several possible Django setup scenarios when launching
+`ztask` - for an example, see the section below called **Implementing with Johnny Cache**.
+
 
 Running in production
 ---------------------
 
 A recommended way to run in production would be to put something similar to 
-the following in to your rc.local file. This example has been tested on 
+the following in to your `rc.local` file. This example has been tested on 
 Ubuntu 10.04 and Ubuntu 10.10:
 
     #!/bin/bash -e
@@ -164,6 +170,40 @@ Example
         # after a 5 second delay
         print_this.after(5, 'This will print to the ztaskd log')
         
+
+Implementing with Johnny Cache
+==============================
+
+Because [Johnny Cache](http://packages.python.org/johnny-cache/) monkey-patches all the Django query compilers, 
+any changes to models in django-ztask that aren't properly patched won't reflect on your site until the cache 
+is cleared. Since django-ztask doesn't concern itself with Middleware, you must put Johnny Cache's QuerysetManager
+middleware in as a callable in the `ZTASKD_ON_LOAD` setting.
+
+    ZTASKD_ON_LOAD = (
+        'johnny.middleware.QueryCacheMiddleware',
+        ...
+    )
+
+If you wanted to do this and other things, you could write your own function, and pass that in to 
+`ZTASKD_ON_LOAD`, as in this example:
+
+**myutilities.py**
+
+    function ztaskd_startup_stuff():
+        '''
+        Stuff to run every time the ztaskd server 
+        is started or reloaded
+        '''
+        from johnny import middleware
+        middleware.QueryCacheMiddleware()
+        ... # Other setup stuff
+
+**settings.py**
+    
+    ZTASKD_ON_LOAD = (
+        'myutilities.ztaskd_startup_stuff',
+        ...
+    )
 
 
 TODOs and BUGS

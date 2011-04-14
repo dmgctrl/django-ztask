@@ -44,7 +44,8 @@ class Command(BaseCommand):
     
     def _handle(self, use_reloader, replay_failed):
         self.logger.info("%sServer starting on %s." % ('Development ' if use_reloader else '', settings.ZTASKD_URL))
-
+        self._on_load()
+        
         socket = context.socket(PULL)
         socket.bind(settings.ZTASKD_URL)
         
@@ -150,5 +151,19 @@ class Command(BaseCommand):
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
+        
+    def _on_load(self):
+        for callable_name in settings.ZTASKD_ON_LOAD:
+            self.logger.info("ON_LOAD calling %s" % callable_name)
+            parts = callable_name.split('.')
+            module_name = '.'.join(parts[:-1])
+            member_name = parts[-1]
+            if not module_name in sys.modules:
+                __import__(module_name)
+            callable_fn = getattr(sys.modules[module_name], member_name)
+            callable_fn()
+            
     
+
+
 

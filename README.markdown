@@ -176,7 +176,7 @@ Implementing with Johnny Cache
 
 Because [Johnny Cache](http://packages.python.org/johnny-cache/) monkey-patches all the Django query compilers, 
 any changes to models in django-ztask that aren't properly patched won't reflect on your site until the cache 
-is cleared. Since django-ztask doesn't concern itself with Middleware, you must put Johnny Cache's QuerysetManager
+is cleared. Since django-ztask doesn't concern itself with Middleware, you must put Johnny Cache's query cache
 middleware in as a callable in the `ZTASKD_ON_LOAD` setting.
 
     ZTASKD_ON_LOAD = (

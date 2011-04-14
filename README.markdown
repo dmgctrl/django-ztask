@@ -189,7 +189,7 @@ If you wanted to do this and other things, you could write your own function, an
 
 **myutilities.py**
 
-    function ztaskd_startup_stuff():
+    def ztaskd_startup_stuff():
         '''
         Stuff to run every time the ztaskd server 
         is started or reloaded

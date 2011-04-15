@@ -126,6 +126,8 @@ the object in the task function.
 The @task Decorator
 -------------------
 
+    from django_ztask.decorators import task
+
 The `@task()` decorator will turn any normal function in to a 
 `django_ztask` task if called using one of the function extensions.
 
@@ -152,7 +154,7 @@ Any function can be called in one of three ways:
 Example
 -------
 
-    from django_ztask import task
+    from django_ztask.decorators import task
     
     @task()
     def print_this(what_to_print):

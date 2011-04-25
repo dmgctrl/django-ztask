@@ -1,6 +1,7 @@
 from django.db.models import *
 
 import uuid
+import datetime
 
 class QuerySetManager(Manager):
     def __getattr__(self, attr, *args):
@@ -23,10 +24,12 @@ class Task(Model):
     retry_count = IntegerField(default=0)
     last_exception = TextField(blank=True, null=True)
     next_attempt = FloatField(blank=True, null=True)
+    created = DateTimeField(blank=True, null=True)
     failed = DateTimeField(blank=True, null=True)
     
     def save(self, *args, **kwargs):
         if not self.uuid:
+            self.created = datetime.datetime.now()
             self.uuid = uuid.uuid4()
         super(Task, self).save(*args, **kwargs)
     

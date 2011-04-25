@@ -1,3 +1,19 @@
+IMPORTANT: READ ME
+==================
+
+In version 0.1.4, we are introducing two major changes:
+
+1. Tasks now have a "created" datetime field. This was added to make sure `--replayfailed` replayed tasks in the appropriate order
+2. Introduced [South](http://south.aeracode.org/) migrations.
+
+IF YOU HAVE ALREADY INSTALLED django-ztask - you can "fake" the first migration, and then run the second migration:
+
+    ./manage.py migrate django_ztask --fake 0001
+    ./manage.py migrate django_ztask
+    
+If you are not using [South](http://south.aeracode.org/) in your Django project, it is strongly recommended you do. If you
+are not, you will have to add the "created" field to your database manually.
+
 Installing
 ==========
 
@@ -34,25 +50,25 @@ Command-line arguments
 The `ztaskd` command takes a series of command-line arguments:
 
 - `--noreload`
-
+  
   By default, `ztaskd` will use the built-in Django reloader 
   to reload the server whenever a change is made to a python file. Passing
   in `--noreload` will prevent it from listening for changed files.
   (Good to use in production.)
 
 - `-l` or `--loglevel`
-
+  
   Choose from the standard `CRITICAL`, `ERROR`, `WARNING`, 
   `INFO`, `DEBUG`, or `NOTSET`. If this argument isn't passed 
   in, `INFO` is used by default.
 
 - `-f` or `--logfile`
-
+  
   The file to log messages to. By default, all messages are logged
   to `stdout`
 
 - `--replayfailed`
-
+  
   If a command has failed more times than allowed in the 
   `ZTASKD_RETRY_COUNT` (see below for more), the task is
   logged as failed. Passing in `--replayfailed` will cause all 

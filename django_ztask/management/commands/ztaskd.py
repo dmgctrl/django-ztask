@@ -125,7 +125,7 @@ class Command(BaseCommand):
                     task.retry_count = task.retry_count - 1
                     task.next_attempt = time.time() + settings.ZTASKD_RETRY_AFTER
                     ioloop.DelayedCallback(lambda: self._call_function(task.pk), settings.ZTASKD_RETRY_AFTER * 1000, io_loop=self.io_loop).start()
-                task.failed = datetime.datetime.now()
+                task.failed = datetime.datetime.utcnow()
                 task.last_exception = '%s' % e
                 task.save()
             except Exception, e2:

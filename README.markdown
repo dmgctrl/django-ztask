@@ -3,10 +3,10 @@ IMPORTANT: READ ME
 
 In version 0.1.4, we are introducing two major changes:
 
-1. Tasks now have a "created" datetime field. This was added to make sure `--replayfailed` replayed tasks in the appropriate order
+1. Tasks now have a `created` datetime field. This was added to make sure `--replayfailed` replayed tasks in the appropriate order
 2. Introduced [South](http://south.aeracode.org/) migrations.
 
-IF YOU HAVE ALREADY INSTALLED django-ztask - you can "fake" the first migration, and then run the second migration:
+IF YOU HAVE ALREADY INSTALLED `django-ztask` - you can "fake" the first migration, and then run the second migration:
 
     ./manage.py migrate django_ztask --fake 0001
     ./manage.py migrate django_ztask
@@ -19,7 +19,7 @@ Installing
 
 Download and install 0MQ version 2.1.3 or better from [http://www.zeromq.org](http://www.zeromq.org)
 
-Install pyzmq and django_ztaskd using PIP:
+Install pyzmq and django-ztask using PIP:
 
     pip install pyzmq
     pip install -e git+git@github.com:dmgctrl/django-ztask.git#egg=django_ztask

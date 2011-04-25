@@ -29,7 +29,7 @@ class Task(Model):
     
     def save(self, *args, **kwargs):
         if not self.uuid:
-            self.created = datetime.datetime.now()
+            self.created = datetime.datetime.utcnow()
             self.uuid = uuid.uuid4()
         super(Task, self).save(*args, **kwargs)
     

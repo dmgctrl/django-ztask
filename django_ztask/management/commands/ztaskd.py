@@ -19,7 +19,7 @@ import traceback
 
 import logging
 import pickle
-import datetime
+import datetime, time
  
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (

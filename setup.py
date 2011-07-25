@@ -2,7 +2,7 @@
 try:
     from setuptools import setup, find_packages
 except:
-    from distutils.core import setup
+    from distutils.core import setup, find_packages
 import django_ztask as distmeta
 
 setup(

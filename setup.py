@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 try:
-    from setuptools import setup
+    from setuptools import setup, find_packages
 except:
     from distutils.core import setup
 import django_ztask as distmeta
@@ -13,7 +13,7 @@ setup(
     url=distmeta.__homepage__,
     #
     name='django-ztask',
-    packages=['django_ztask','django_ztask.management','django_ztask.conf','django_ztask.migrations'],
+    packages=find_packages()
     install_requires=[
         'pyzmq',
     ]

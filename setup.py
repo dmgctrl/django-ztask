@@ -13,7 +13,7 @@ setup(
     url=distmeta.__homepage__,
     #
     name='django-ztask',
-    packages=find_packages()
+    packages=find_packages(),
     install_requires=[
         'pyzmq',
     ]
